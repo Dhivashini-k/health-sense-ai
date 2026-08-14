@@ -55,3 +55,15 @@ def get_current_user(token: Optional[str] = Depends(oauth2_scheme), db: Session 
     if user is None:
         raise credentials_exception
     return user
+
+def get_optional_user(token: Optional[str] = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> Optional[models.User]:
+    if not token or token == "demo":
+        return None
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id = payload.get("sub")
+        if user_id:
+            return db.query(models.User).filter(models.User.id == user_id).first()
+    except JWTError:
+        pass
+    return None

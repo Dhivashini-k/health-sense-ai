@@ -1,0 +1,53 @@
+{
+  "sources": [
+    {
+      "id": "who_healthy_diet",
+      "organization": "World Health Organization",
+      "title": "Healthy diet",
+      "category": "general",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/healthy-diet"
+    },
+    {
+      "id": "who_hypertension",
+      "organization": "World Health Organization",
+      "title": "Hypertension",
+      "category": "hypertension",
+      "url": "https://www.who.int/news-room/fact-sheets/detail/hypertension"
+    },
+    {
+      "id": "aha_hypertension_diet",
+      "organization": "American Heart Association",
+      "title": "Managing Blood Pressure with a Heart-Healthy Diet",
+      "category": "hypertension",
+      "url": "https://www.heart.org/en/health-topics/high-blood-pressure/changes-you-can-make-to-manage-high-blood-pressure/managing-blood-pressure-with-a-heart-healthy-diet"
+    },
+    {
+      "id": "ada_nutrition",
+      "organization": "American Diabetes Association",
+      "title": "How to Eat Healthy with Diabetes",
+      "category": "diabetes",
+      "url": "https://diabetes.org/food-nutrition/how-to-eat-healthy-with-diabetes"
+    },
+    {
+      "id": "aha_stroke_prevention",
+      "organization": "American Heart Association",
+      "title": "Primary Prevention of Stroke",
+      "category": "stroke",
+      "url": "https://professional.heart.org/en/science-news/2024-guideline-for-the-primary-prevention-of-stroke"
+    },
+    {
+      "id": "nkf_ckd_nutrition",
+      "organization": "National Kidney Foundation",
+      "title": "Nutrition and Kidney Disease",
+      "category": "ckd",
+      "url": "https://www.kidney.org/kidney-topics/nutrition-and-kidney-disease-stages-1-5-not-dialysis"
+    },
+    {
+      "id": "nkf_ckd_exercise",
+      "organization": "National Kidney Foundation",
+      "title": "Exercise and Kidney Disease",
+      "category": "ckd",
+      "url": "https://www.kidney.org/news-stories/15-safe-exercises-ckd-dialysis-and-post-transplant-patients"
+    }
+  ]
+}
