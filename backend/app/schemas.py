@@ -163,3 +163,4 @@ class LabTestOrderOut(BaseModel):
 class ChatRequest(BaseModel):
     role: str
     messages: List[dict]
+    system_context: Optional[str] = None

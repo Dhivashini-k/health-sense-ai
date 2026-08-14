@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { MessageCircle, X, Send, Sparkles, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Sparkles, Loader2, RefreshCw } from "lucide-react";
 import { C } from "../constants.js";
 import * as api from "../lib/api.js";
 
@@ -9,21 +9,39 @@ export default function Chatbot({ open, setOpen, role }) {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [patientId, setPatientId] = useState(null);
   const endRef = useRef(null);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, open]);
 
-  const send = async () => {
-    if (!input.trim() || loading) return;
-    const next = [...messages, { role: "user", text: input }];
-    setMessages(next);
-    setInput("");
+  // Fetch first patient ID once on mount
+  useEffect(() => {
+    api.listPatients().then((patients) => {
+      if (patients?.length > 0) setPatientId(patients[0].id);
+    }).catch(() => {});
+  }, []);
+
+  const send = async (retryMessage) => {
+    const msg = retryMessage || input.trim();
+    if (!msg || loading) return;
+
+    if (!retryMessage) {
+      setMessages((cur) => [...cur, { role: "user", text: msg }]);
+      setInput("");
+    }
     setLoading(true);
     try {
-      const data = await api.chatWithAssistant(role, next);
-      setMessages((cur) => [...cur, { role: "assistant", text: data.text }]);
+      if (patientId) {
+        const data = await api.chatWithGemini(patientId, msg);
+        setMessages((cur) => [...cur, { role: "assistant", structured: data }]);
+      } else {
+        // Fallback to old assistant if no patient loaded
+        const allMsgs = [...messages, { role: "user", text: msg }];
+        const data = await api.chatWithAssistant(role, allMsgs);
+        setMessages((cur) => [...cur, { role: "assistant", text: data.text }]);
+      }
     } catch (e) {
-      setMessages((cur) => [...cur, { role: "assistant", text: "I'm having trouble connecting right now. Please try again in a moment." }]);
+      setMessages((cur) => [...cur, { role: "assistant", text: "I'm having trouble connecting right now.", error: true, retryMsg: msg }]);
     } finally {
       setLoading(false);
     }
@@ -51,7 +69,42 @@ export default function Chatbot({ open, setOpen, role }) {
                 className={`max-w-[85%] px-3 py-2 rounded-xl text-sm ${m.role === "user" ? "ml-auto" : ""}`}
                 style={{ backgroundColor: m.role === "user" ? C.primaryLight : C.bg, color: C.text }}
               >
-                {m.text}
+                {m.text && <div>{m.text}</div>}
+                {m.error && (
+                  <button
+                    onClick={() => send(m.retryMsg)}
+                    className="mt-1 text-xs flex items-center gap-1 px-2 py-1 rounded"
+                    style={{ color: C.primary }}
+                  >
+                    <RefreshCw size={11} /> Retry
+                  </button>
+                )}
+                {m.structured && (
+                  <div className="flex flex-col gap-2">
+                    <div>{m.structured.answer}</div>
+                    {m.structured.priority_conditions?.length > 0 && (
+                      <div className="text-xs mt-1">
+                        <strong>Priority: </strong>
+                        {m.structured.priority_conditions.map((c) => c.toUpperCase()).join(", ")}
+                      </div>
+                    )}
+                    {m.structured.recommendations?.length > 0 && (
+                      <div className="mt-2 text-xs">
+                        <strong>Recommendations:</strong>
+                        <ul className="list-disc pl-4 mt-1 space-y-1">
+                          {m.structured.recommendations.map((rec, idx) => (
+                            <li key={idx}><strong>{rec.category}:</strong> {rec.text}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {m.structured.disclaimer && (
+                      <div className="text-[10px] text-gray-500 mt-2 italic border-t pt-1 border-gray-200">
+                        {m.structured.disclaimer}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
             {loading && (
@@ -70,7 +123,7 @@ export default function Chatbot({ open, setOpen, role }) {
               className="flex-1 px-3 py-2 rounded-lg border text-sm outline-none"
               style={{ borderColor: C.border }}
             />
-            <button onClick={send} className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: C.primary }}>
+            <button onClick={() => send()} className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: C.primary }}>
               <Send size={15} className="text-white" />
             </button>
           </div>

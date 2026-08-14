@@ -55,6 +55,7 @@ export const getKpis = (role) => api.get("/analytics/kpis", { params: { role } }
 
 // ---- Assistant ----
 export const chatWithAssistant = (role, messages) => api.post("/assistant/chat", { role, messages }).then((r) => r.data);
+export const chatWithGemini = (patient_id, message) => api.post("/api/chat", { patient_id, message }).then((r) => r.data);
 
 // ---- ML Models ----
 export const getMLModelsStatus = () => api.get("/ml-models/status").then((r) => r.data);
